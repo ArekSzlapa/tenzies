@@ -1,25 +1,86 @@
-import logo from './logo.svg';
-import './App.css';
+import React,{useEffect} from "react"
+import Die from "./Die"
+import {nanoid} from "nanoid"
+import ReactConfetti from "react-confetti"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+
+    const [tenzies, setTenzies] = React.useState(false)
+    const [dice, setDice] = React.useState(allNewDice())
+    
+    useEffect(()=>{
+      const allHeld = dice.every(die => die.isHeld)
+      const firstValue = dice[0].value
+      const allValue = dice.every(die => firstValue === die.value)
+      if(allHeld && allValue){
+        setTenzies(true)
+      } 
+      if(tenzies){
+        setTenzies(false)
+        setDice(allNewDice())
+      }
+    },[dice])
+
+    function generateNewDie() {
+        return {
+            value: Math.ceil(Math.random() * 6),
+            isHeld: false,
+            id: nanoid()
+        }
+    }
+    
+    function allNewDice() {
+        const newDice = []
+        for (let i = 0; i < 10; i++) {
+            newDice.push(generateNewDie())
+        }
+        return newDice
+    }
+    
+    
+/**
+ * Challenge: Update the `rollDice` function to not just roll
+ * all new dice, but instead to look through the existing dice
+ * to NOT role any that are being `held`.
+ * 
+ * Hint: this will look relatively similiar to the `holdDice`
+ * function below. When creating new dice, remember to use
+ * `id: nanoid()` so any new dice have an `id` as well.
+ */
+    function rollDice() {
+        setDice(oldDice => oldDice.map(die => {
+            return die.isHeld ? 
+                die :
+                generateNewDie()
+        }))
+    }
+    
+    function holdDice(id) {
+        setDice(oldDice => oldDice.map(die => {
+            return die.id === id ? 
+                {...die, isHeld: !die.isHeld} :
+                die
+        }))
+    }
+    
+    const diceElements = dice.map(die => (
+        <Die 
+            key={die.id} 
+            value={die.value} 
+            isHeld={die.isHeld} 
+            holdDice={() => holdDice(die.id)}
+        />
+    ))
+    
+    return (
+        <main>
+          <h1 className="title">Tenzies</h1>
+            <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
+            <div className="dice-container">
+                {diceElements}
+                {(tenzies && <ReactConfetti/>)}
+            </div>
+            <button className="roll-dice" onClick={rollDice}>{tenzies ? "New Game?" : "Roll"}</button>
+        </main>
+    )
 }
-
-export default App;
