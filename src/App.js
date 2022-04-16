@@ -5,6 +5,7 @@ import ReactConfetti from "react-confetti"
 
 export default function App() {
 
+    const [count, setCount] = React.useState(0)
     const [tenzies, setTenzies] = React.useState(false)
     const [dice, setDice] = React.useState(allNewDice())
     
@@ -18,6 +19,7 @@ export default function App() {
       if(tenzies){
         setTenzies(false)
         setDice(allNewDice())
+        setCount(0)
       }
     },[dice])
 
@@ -28,6 +30,7 @@ export default function App() {
             id: nanoid()
         }
     }
+
     
     function allNewDice() {
         const newDice = []
@@ -35,24 +38,15 @@ export default function App() {
             newDice.push(generateNewDie())
         }
         return newDice
-    }
-    
-    
-/**
- * Challenge: Update the `rollDice` function to not just roll
- * all new dice, but instead to look through the existing dice
- * to NOT role any that are being `held`.
- * 
- * Hint: this will look relatively similiar to the `holdDice`
- * function below. When creating new dice, remember to use
- * `id: nanoid()` so any new dice have an `id` as well.
- */
+      }
+
     function rollDice() {
-        setDice(oldDice => oldDice.map(die => {
-            return die.isHeld ? 
-                die :
-                generateNewDie()
-        }))
+      setCount(oldCount=>oldCount+1);
+      setDice(oldDice => oldDice.map(die => {
+        return die.isHeld ? 
+        die :
+        generateNewDie() 
+      }))
     }
     
     function holdDice(id) {
@@ -73,14 +67,18 @@ export default function App() {
     ))
     
     return (
+      <>
+      
         <main>
+          <p className="counter">Current turn : {count}</p>
           <h1 className="title">Tenzies</h1>
             <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
             <div className="dice-container">
                 {diceElements}
-                {(tenzies && <ReactConfetti/>)}
             </div>
             <button className="roll-dice" onClick={rollDice}>{tenzies ? "New Game?" : "Roll"}</button>
         </main>
+      {(tenzies && <ReactConfetti/>)}
+      </>
     )
 }
