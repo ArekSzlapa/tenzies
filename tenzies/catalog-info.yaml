@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tenzies
+  annotations:
+    github.com/project-slug: ArekSzlapa/tenzies
+spec:
+  type: other
+  lifecycle: unknown
